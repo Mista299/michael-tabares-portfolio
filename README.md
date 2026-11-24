@@ -1,17 +1,48 @@
 # Sitio personal — Michael Tabares Tobón
 
-Tarjeta de presentación personal. Un solo archivo HTML, sin build, sin dependencias.
+Tarjeta de presentación personal. HTML, CSS y JavaScript planos: sin build,
+sin dependencias, sin bundler.
 
 ```
 pagina-web/
-├── index.html                          ← todo el sitio (HTML + CSS + JS inline)
+├── index.html                          ← estructura y contenido
 ├── assets/
-│   └── michael.jpg                     ← tu foto (recortada a cuadrada)
+│   ├── css/
+│   │   └── main.css                    ← tokens, componentes, responsive
+│   ├── js/
+│   │   ├── main.js                     ← punto de entrada
+│   │   ├── i18n.js                     ← selector de idioma ES/EN
+│   │   ├── motion.js                   ← animaciones y contadores
+│   │   └── nav.js                      ← barra de navegación
+│   └── michael.jpg                     ← foto (recortada a cuadrada)
 ├── CV_Michael_Tabares_Tobon_v12_backend.pdf    ← descarga en español
 ├── CV_Michael_Tabares_Tobon_EN.pdf              ← descarga en inglés
 ├── CV_Michael_Tabares_Tobon_v12_datos_ml.pdf
-└── CV_Michael_Tabares_Tobon_v12_seguridad.pdf
+├── CV_Michael_Tabares_Tobon_v12_seguridad.pdf
+└── v1-anterior/index.html              ← versión previa, conservada
 ```
+
+## Publicación
+
+GitHub Pages sirve la rama `main` desde la raíz del repositorio. Cada `push`
+a `main` vuelve a publicar el sitio: https://mista299.github.io/michael-tabares-portfolio/
+
+Netlify y Vercel también funcionan: arrastra la carpeta o conecta el
+repositorio apuntando a la raíz del proyecto.
+
+## Ver en local
+
+Los módulos ES (`import`/`export`) no funcionan abriendo el archivo con
+`file://`: el navegador los bloquea por política de origen. Hay que servirlo
+por HTTP:
+
+```bash
+cd pagina-web
+python3 -m http.server 8000
+# abre http://localhost:8000
+```
+
+Cualquier servidor estático sirve igual (`npx serve`, `php -S`, etc.).
 
 ## Idiomas
 
@@ -22,8 +53,8 @@ su navegador.
 
 Cómo está hecho: cada bloque de texto tiene dos versiones marcadas con las
 clases `lang-es` y `lang-en`. El CSS muestra una y oculta la otra según el
-atributo `lang` del `<html>`; el JavaScript alterna ese atributo y actualiza el
-título y las metaetiquetas de SEO.
+atributo `lang` del `<html>`; `assets/js/i18n.js` alterna ese atributo y
+actualiza el título, las metaetiquetas de SEO y el enlace de descarga del CV.
 
 Para **añadir un texto**, duplica el elemento con las dos clases:
 
@@ -35,64 +66,45 @@ Para **añadir un texto**, duplica el elemento con las dos clases:
 Si solo existe en un idioma, escribe el texto directamente sin clases: se verá
 igual en los dos.
 
-## Ver en local
-
-```bash
-cd pagina-web
-python3 -m http.server 8000
-# abre http://localhost:8000
-```
-
 ## Editar
-
-Todo está en `index.html`. Para cambiar textos, busca la sección por su `<h2>`
-(`Cómo trabajo`, `Stack`, `Experiencia`, `Proyectos`, `Contacto`).
 
 ### Cambiar la foto
 
 Reemplaza `assets/michael.jpg`. Idealmente cuadrada y con el rostro en el tercio
 superior — el CSS recorta con `object-position:50% 30%`. Si tu recorte es
-diferente, ajusta ese valor.
+diferente, ajusta ese valor en `assets/css/main.css`.
 
-### Poner la URL real de Bookly
+### Cambiar el texto
 
-En el proyecto **Bookly**, busca este comentario:
-
-```html
-<!-- ═══ EDITAR ═══ Reemplazar el href="#" por la URL real de producción de Bookly -->
-```
-
-y cambia `href="#"` por tu URL, por ejemplo `href="https://bookly-xxxx.onrender.com"`.
+Busca la sección en `index.html` por su `<h2>` (`Cómo trabajo`, `Stack`,
+`Experiencia`, `Proyectos`, `Contacto`).
 
 ### Cambiar el CV que se descarga
 
-El botón "Descargar CV" cambia solo: en español baja `CV_Michael_Tabares_Tobon_v12_backend.pdf`
-y en inglés `CV_Michael_Tabares_Tobon_EN.pdf`. Si reemplazas alguno, actualiza la
-ruta en el atributo `data-cv-es` / `data-cv-en` del botón:
+El botón "Descargar CV" cambia solo: en español baja
+`CV_Michael_Tabares_Tobon_v12_backend.pdf` y en inglés
+`CV_Michael_Tabares_Tobon_EN.pdf`. Si reemplazas alguno, actualiza la ruta en
+los atributos `data-cv-es` / `data-cv-en` del botón:
 
 ```html
-<a class="btn" href="/CV_Michael_Tabares_Tobon_v12_backend.pdf" download
-   data-cv-es="/CV_Michael_Tabares_Tobon_v12_backend.pdf"
-   data-cv-en="/CV_Michael_Tabares_Tobon_EN.pdf">
+<a class="btn" href="CV_Michael_Tabares_Tobon_v12_backend.pdf" download
+   data-cv-es="CV_Michael_Tabares_Tobon_v12_backend.pdf"
+   data-cv-en="CV_Michael_Tabares_Tobon_EN.pdf">
 ```
+
+Las rutas son **relativas a propósito**: en GitHub Pages el sitio se sirve en
+un subdirectorio, así que una ruta que empiece por `/` apuntaría a la raíz
+del dominio y daría 404.
 
 ### Cambiar los colores
 
-Todos están al inicio del `<style>`, en el bloque `:root`:
+Todos están al inicio de `assets/css/main.css`, en el bloque `:root`:
 
 ```css
---cyan:   #2DD4E8;   /* acento principal */
---amber:  #F0A830;   /* etiquetas de proyecto */
---bg:     #070C16;   /* fondo */
+--cyan:   #35E0F0;   /* acento principal */
+--amber:  #FFB84D;   /* etiquetas de proyecto */
+--bg:     #05090F;   /* fondo */
 ```
-
-## Publicar
-
-Cualquier hosting estático sirve. Netlify y Vercel: arrastra la carpeta `pagina-web`
-o conéctala a un repositorio y publica la raíz en esa carpeta. GitHub Pages también
-funciona: sube la carpeta como `docs/` o `gh-pages`.
-
-Para un dominio propio, apunta un CNAME al hosting.
 
 ## Nota de diseño
 
@@ -103,7 +115,7 @@ plano de racks.
 - **Paleta:** azul profundo `#05090F` + cian `#35E0F0` + ámbar `#FFB84D` + verde de estado.
 - **Tipografía:** Bricolage Grotesk para títulos (carácter geométrico con voz propia),
   Public Sans para texto, IBM Plex Mono para lo técnico (datos, comandos, rutas de archivo).
-- **Sin frameworks ni librerías:** el archivo pesa menos de 60 KB y carga de inmediato.
+- **Sin frameworks ni librerías:** el sitio carga de inmediato.
 
 ### Movimiento
 
