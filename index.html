@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Michael Tabares Tobón — Backend &amp; Cloud</title>
+<meta name="theme-color" content="#070C16">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Practicante de Ingeniería de Sistemas. Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.">
+<meta property="og:title" content="Michael Tabares Tobón — Backend &amp; Cloud">
+<meta property="og:description" content="Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.">
+<meta property="og:image" content="assets/michael.jpg">
+<meta property="og:type" content="profile">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070C16'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' fill='%232DD4E8' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>document.documentElement.classList.add("js")</script>
+<style>
+/* ============================================================
+   TOKENS
+   El mundo: la sala de control de un servidor. Superficies
+   oscuras, un unico acento que es la luz de un terminal en
+   marcha, y la retícula de un plano de racks.
+   ============================================================ */
+:root{
+  --bg:            #05090F;
+  --bg-raised:     #0A1119;
+  --bg-inset:      #070D16;
+  --line:          #16202E;
+  --line-bright:   #24344A;
+
+  --text:          #ECF1F8;
+  --text-dim:      #A8B7CB;
+  --text-faint:    #7B8CA4;
+
+  --cyan:          #35E0F0;
+  --cyan-deep:     #0B6E7E;
+  --amber:         #FFB84D;
+  --green:         #4AE39A;
+
+  --font-display:  "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body:     "Public Sans", system-ui, sans-serif;
+  --font-mono:     "IBM Plex Mono", ui-monospace, monospace;
+
+  --measure:       70ch;
+  --gutter:        clamp(1.25rem, 4vw, 3.5rem);
+  --maxw:          1180px;
+
+  /* Curvas propias: las de CSS son debiles y no se sienten intencionadas */
+  --ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-drawer:   cubic-bezier(0.32, 0.72, 0, 1);
+
+  --shadow-lift:   0 1px 2px rgba(0,0,0,.4), 0 12px 32px -12px rgba(0,0,0,.65);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* El plano de un rack: la retícula viene del mundo, no es decoracion.
+   Una sola direccion, como las lineas de un plano de montaje. */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(53,224,240,.028) 1px, transparent 1px);
+  background-size:100% 72px;
+  mask-image:linear-gradient(180deg, #000 0%, transparent 45%);
+}
+
+::selection{ background:var(--cyan); color:var(--bg); }
+
+a{ color:inherit; text-decoration:none; }
+img{ max-width:100%; display:block; }
+
+.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gutter); }
+
+/* Foco visible: el teclado siempre debe notarse */
+:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:3px;
+}
+
+/* Enlace bajo el cursor: hereda la paleta, no el azul del sistema */
+a[href^="http"]:not(.btn):not(.link):hover,
+a[href^="mailto"]:hover{ text-decoration:underline; text-underline-offset:3px; }
+
+/* Barra de desplazamiento del sistema, temada */
+html{ scrollbar-color: var(--line-bright) var(--bg); scrollbar-width:thin; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{
+  background:var(--line-bright); border-radius:6px;
+  border:3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover{ background:var(--cyan-deep); }
+
+/* Numeros tabulares: las cifras deben alinearse en las tablas */
+.metrics dd, .metric dd, td, .project__sub{ font-variant-numeric: tabular-nums; }
+
+.skip{
+  position:absolute; left:-9999px; top:0; z-index:100;
+  background:var(--cyan); color:var(--bg); padding:.75rem 1.25rem;
+  font-family:var(--font-mono); font-size:.85rem; border-radius:0 0 4px 0;
+}
+.skip:focus{ left:.5rem; top:.5rem; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter:blur(16px) saturate(160%);
+  background:color-mix(in srgb, var(--bg) 78%, transparent);
+  border-bottom:1px solid transparent;
+  transition:border-color 220ms var(--ease-out), background-color 220ms var(--ease-out);
+}
+.nav.is-stuck{
+  border-bottom-color:var(--line);
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
+}
+.nav__in{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1.5rem; min-height:64px;
+}
+.brand{
+  font-family:var(--font-mono); font-size:.8rem; letter-spacing:.01em;
+  color:var(--text-dim); display:flex; align-items:center; gap:.6rem;
+  transition:color 180ms var(--ease-out);
+}
+.brand:hover{ color:var(--text); }
+.brand b{ color:var(--text); font-weight:600; }
+/* El estado del servicio: un punto fijo, no un latido infinito */
+.brand i{
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 15%, transparent);
+}
+
+.nav__links{ display:flex; gap:.15rem; list-style:none; margin:0; padding:0; }
+.nav__links a{
+  position:relative; font-size:.86rem; color:var(--text-dim);
+  padding:.45rem .75rem; border-radius:5px;
+  transition:color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+}
+.nav__links a:hover{ color:var(--text); background:var(--bg-raised); }
+/* El enlace activo se marca con una linea de estado, no con color solo */
+.nav__links a::after{
+  content:""; position:absolute; left:.75rem; right:.75rem; bottom:.28rem;
+  height:1px; background:var(--cyan);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 240ms var(--ease-out);
+}
+.nav__links a:hover::after{ transform:scaleX(1); }
+.nav__links a.is-active{ color:var(--text); }
+.nav__links a.is-active::after{ transform:scaleX(1); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding:clamp(2.5rem,5.5vw,4.5rem) 0 clamp(2.5rem,6vw,4.5rem); }
+
+.hero__grid{
+  display:grid; grid-template-columns:minmax(0,1.42fr) minmax(0,.58fr);
+  gap:clamp(2rem,5vw,4rem); align-items:center;
+}
+
+/* Sin eyebrow: el encabezado carga con su propio peso */
+.hero h1{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(2.4rem,5.8vw,4rem); line-height:1.02;
+  letter-spacing:-.03em; margin:0 0 1.5rem;
+  text-wrap:balance;
+}
+.hero h1 .ln{ display:block; }
+/* La segunda linea entra con un barrido de un cursor de terminal:
+   un bloque de luz que la recorre y se apaga al llegar al final. */
+.hero h1 .ln--accent{
+  position:relative;
+  color:var(--cyan);
+  display:inline-block;
+}
+.hero h1 .ln--accent::after{
+  content:""; position:absolute; left:0; bottom:.08em; height:.08em;
+  width:100%; background:var(--cyan); opacity:.9;
+  transform:scaleX(0); transform-origin:left;
+  animation:underline-sweep 620ms var(--ease-out) 220ms forwards;
+}
+@keyframes underline-sweep{
+  0%{ transform:scaleX(0); transform-origin:left; }
+  55%{ transform:scaleX(1); transform-origin:left; }
+  56%{ transform:scaleX(1); transform-origin:right; }
+  100%{ transform:scaleX(0); transform-origin:right; }
+}
+
+.hero__lead{
+  font-size:clamp(1.02rem,1.9vw,1.14rem); color:var(--text-dim);
+  max-width:54ch; margin:0 0 2.2rem; text-wrap:pretty;
+}
+.hero__lead strong{ color:var(--text); font-weight:600; }
+
+/* Botones: sin flechas, verbos explicitos, feedback de presion */
+.cta{ display:flex; flex-wrap:wrap; gap:.8rem; align-items:center; }
+.btn{
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-family:var(--font-mono); font-size:.85rem; letter-spacing:.01em;
+  padding:.85rem 1.4rem; border-radius:7px;
+  border:1px solid var(--line-bright); color:var(--text);
+  background:var(--bg-raised);
+  transition:transform 160ms var(--ease-out), border-color 180ms var(--ease-out),
+             background-color 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+.btn:hover{ border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px); }
+.btn:active{ transform:translateY(0) scale(.97); }
+.btn--primary{
+  background:var(--cyan); color:#03151A; border-color:var(--cyan); font-weight:600;
+}
+.btn--primary:hover{
+  background:#6AEBF8; color:#03151A; border-color:#6AEBF8;
+  /* Sombra con desplazamiento y difusion: profundidad, no halo */
+  box-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -14px rgba(0,0,0,.9);
+}
+.btn--primary:active{ transform:translateY(0) scale(.97); }
+.btn svg{ width:15px; height:15px; flex:none; }
+
+/* Foto: marco con esquinas dibujadas, como un monitor de sala de control */
+.portrait{ position:relative; width:100%; max-width:330px; margin-left:auto; }
+.portrait__frame{
+  position:relative; border:1px solid var(--line-bright);
+  background:var(--bg-inset); padding:9px; border-radius:8px;
+  transition:border-color 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+.portrait:hover .portrait__frame{
+  border-color:color-mix(in srgb, var(--cyan) 42%, var(--line-bright));
+  transform:translateY(-3px);
+}
+.portrait__frame::before,
+.portrait__frame::after{
+  content:""; position:absolute; width:18px; height:18px;
+  border:2px solid var(--cyan);
+}
+.portrait__frame::before{ top:-1px; left:-1px; border-right:0; border-bottom:0; border-radius:8px 0 0 0; }
+.portrait__frame::after{ bottom:-1px; right:-1px; border-left:0; border-top:0; border-radius:0 0 8px 0; }
+.portrait img{
+  width:100%; height:auto; aspect-ratio:1/1;
+  object-fit:cover; object-position:50% 30%;
+  border-radius:4px;
+  filter:saturate(.94) contrast(1.03);
+}
+
+.portrait__meta{
+  margin-top:.8rem; font-family:var(--font-mono); font-size:.72rem;
+  color:var(--text-faint); display:flex; justify-content:space-between; gap:1rem;
+}
+
+/* Las metricas son datos, no una plantilla de "numero grande + etiqueta" */
+.metrics{
+  display:grid; grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--line); border-radius:9px;
+  margin-top:clamp(2.5rem,5vw,3.5rem); overflow:hidden;
+  background:var(--bg-inset);
+}
+.metric{ padding:1.15rem 1.4rem; border-right:1px solid var(--line); }
+.metric:last-child{ border-right:0; }
+.metric dt{
+  font-family:var(--font-mono); font-size:.7rem; color:var(--text-faint);
+  letter-spacing:.04em; margin:0 0 .45rem;
+}
+.metric dd{
+  margin:0; font-family:var(--font-display); font-weight:600;
+  font-size:1.35rem; line-height:1.15; letter-spacing:-.015em;
+  color:var(--text);
+}
+.metric dd span{ color:var(--text-dim); font-weight:500; }
+
+/* ============================================================
+   SECCIONES
+   ============================================================ */
+/* ============================================================
+   SECCIONES
+   ============================================================ */
+.section{
+  padding-top:clamp(3.5rem,7.5vw,6rem);
+  padding-bottom:clamp(3rem,6.5vw,5rem);
+  border-top:1px solid transparent;
+}
+/* El borde divide las secciones; el contenido nunca queda pegado a el */
+.section + .section{
+  border-top-color:var(--line);
+}
+.section__head{
+  display:flex; align-items:baseline; gap:1rem;
+  margin:0 0 clamp(2rem,4vw,3rem); flex-wrap:wrap;
+}
+
+/* Mas aire arriba del titulo que abajo: la seccion respira hacia abajo */
+.section__head{
+  display:flex; align-items:baseline; gap:1rem;
+  margin:0 0 clamp(2rem,4vw,3rem); flex-wrap:wrap;
+}
+.section__head h2{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(1.6rem,3.6vw,2.2rem); letter-spacing:-.025em; margin:0;
+  text-wrap:balance;
+}
+.section__head p{
+  font-family:var(--font-mono); font-size:.78rem; color:var(--text-faint);
+  margin:0; margin-left:auto;
+}
+
+/* ============================================================
+   ENTRADAS AL SCROLL
+   Un solo momento de entrada, escalonado. El estado por defecto
+   es visible; la clase .js solo se aplica si el script corre, y
+   hay una red de seguridad para que nada quede oculto.
+   ============================================================ */
+.js .reveal{
+  opacity:0; transform:translateY(14px);
+  transition:opacity 520ms var(--ease-out), transform 520ms var(--ease-out);
+}
+.js .reveal.is-in{ opacity:1; transform:none; }
+/* Retardo no uniforme: el ritmo se siente vivo, no mecanico */
+.js .reveal[style*="--d"]{ transition-delay:var(--d); }
+
+/* Si el script nunca llega a marcar is-in, nada permanece invisible */
+html.js .reveal{ animation:reveal-safety 0s 3s forwards; }
+@keyframes reveal-safety{ to{ opacity:1; transform:none; } }
+
+@media (prefers-reduced-motion:reduce){
+  .js .reveal{ opacity:1 !important; transform:none !important; }
+  .hero h1 .ln--accent::after{ animation:none; opacity:0; }
+}
+
+/* ============================================================
+   STACK — salida de consola
+   ============================================================ */
+.console{
+  border:1px solid var(--line); border-radius:9px; overflow:hidden;
+  background:var(--bg-inset);
+  box-shadow:var(--shadow-lift);
+}
+.console__bar{
+  display:flex; align-items:center; gap:.5rem; padding:.65rem .9rem;
+  border-bottom:1px solid var(--line); background:var(--bg-raised);
+}
+.console__bar i{ width:9px; height:9px; border-radius:50%; background:var(--line-bright); }
+.console__bar i:nth-child(1){ background:#E0565B; }
+.console__bar i:nth-child(2){ background:#E0B341; }
+.console__bar i:nth-child(3){ background:#4AE39A; }
+.console__bar span{
+  margin-left:.6rem; font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);
+}
+.console__body{ padding:1.4rem 1.5rem; font-family:var(--font-mono); font-size:.85rem; line-height:1.9; }
+.console__body .p{ color:var(--green); }
+.console__body .k{ color:var(--cyan); }
+.console__body .v{ color:var(--text); }
+.console__body .c{ color:var(--text-faint); }
+.console__body .g{ color:var(--amber); }
+
+.stack-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  gap:1px; background:var(--line); border:1px solid var(--line);
+  border-radius:9px; overflow:hidden; margin-top:1.5rem;
+}
+.stack-col{ background:var(--bg-inset); padding:1.6rem; }
+.stack-col h3{
+  font-family:var(--font-mono); font-size:.72rem; font-weight:600;
+  letter-spacing:.06em;
+  color:var(--cyan); margin:0 0 1.1rem;
+}
+.stack-col ul{ list-style:none; margin:0; padding:0; display:grid; gap:.6rem; }
+.stack-col li{ font-size:.92rem; color:var(--text-dim); }
+.stack-col li b{ color:var(--text); font-weight:600; }
+
+/* ============================================================
+   EXPERIENCIA — linea de tiempo
+   ============================================================ */
+.timeline{ display:grid; gap:0; }
+.tl{
+  display:grid; grid-template-columns:170px minmax(0,1fr);
+  gap:clamp(1.5rem,4vw,3rem);
+  padding:2.4rem 0; border-top:1px solid var(--line);
+}
+.tl:first-child{ border-top:0; padding-top:0; }
+.tl__when{ font-family:var(--font-mono); font-size:.8rem; color:var(--text-faint); }
+.tl__when b{ display:block; color:var(--text-dim); font-weight:500; margin-top:.3rem; }
+.tl__body h3{
+  font-family:var(--font-display); font-weight:600; font-size:1.28rem;
+  letter-spacing:-.015em; margin:0 0 .25rem; text-wrap:balance;
+}
+.tl__body .where{
+  font-family:var(--font-mono); font-size:.8rem; color:var(--cyan);
+  margin:0 0 1.15rem;
+}
+.tl__body ul{ margin:0; padding:0; list-style:none; display:grid; gap:.75rem; }
+.tl__body li{
+  position:relative; padding-left:1.35rem; color:var(--text-dim);
+  font-size:.97rem; max-width:var(--measure);
+}
+.tl__body li::before{
+  content:""; position:absolute; left:0; top:.62em;
+  width:5px; height:5px; background:var(--cyan); border-radius:1px;
+}
+.tl__body li strong{ color:var(--text); font-weight:600; }
+.tl__body li code{
+  font-family:var(--font-mono); font-size:.87em; color:var(--cyan);
+  background:color-mix(in srgb, var(--cyan) 9%, transparent);
+  padding:.1em .38em; border-radius:3px;
+}
+
+/* ============================================================
+   PORTFOLIO
+   ============================================================ */
+/* Cada proyecto es una fila con borde: no una tarjeta suelta */
+.projects{ display:grid; gap:0; }
+
+.project{
+  background:var(--bg-inset); padding:clamp(1.8rem,3.4vw,2.6rem);
+  display:grid; grid-template-columns:minmax(0,1fr) auto;
+  gap:1.5rem 2rem; align-items:start;
+  border-top:1px solid var(--line);
+  transition:background-color 220ms var(--ease-out);
+}
+.project:first-child{ border-top:0; }
+.project:hover{ background:var(--bg-raised); }
+
+.project__tag{
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.05em;
+  color:var(--amber); margin:0 0 .75rem;
+}
+.project h3{
+  font-family:var(--font-display); font-weight:600; font-size:1.4rem;
+  letter-spacing:-.02em; margin:0 0 .15rem;
+}
+.project__sub{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-faint); margin:0 0 1.15rem; }
+.project__desc{ color:var(--text-dim); margin:0 0 1.25rem; max-width:60ch; text-wrap:pretty; }
+.project__desc strong{ color:var(--text); font-weight:600; }
+
+.project__tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin:0; padding:0; list-style:none; }
+.project__tags li{
+  font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim);
+  border:1px solid var(--line-bright); border-radius:4px; padding:.22rem .55rem;
+  transition:border-color 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+.project:hover .project__tags li{ border-color:color-mix(in srgb, var(--cyan) 22%, var(--line-bright)); }
+
+.project__links{ display:grid; gap:.55rem; min-width:185px; align-content:start; }
+.link{
+  display:flex; align-items:center; gap:.55rem;
+  font-family:var(--font-mono); font-size:.82rem;
+  padding:.6rem .85rem; border:1px solid var(--line-bright); border-radius:6px;
+  color:var(--text-dim);
+  transition:transform 160ms var(--ease-out), border-color 180ms var(--ease-out),
+             color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+}
+.link:hover{
+  border-color:var(--cyan); color:var(--cyan);
+  background:color-mix(in srgb,var(--cyan) 7%, transparent);
+  transform:translateX(3px);
+}
+.link:active{ transform:translateX(3px) scale(.97); }
+.link svg{ width:14px; height:14px; flex:none; }
+.link--live{ border-color:color-mix(in srgb,var(--green) 38%, var(--line-bright)); color:var(--green); }
+.link--live:hover{
+  border-color:var(--green); color:var(--green);
+  background:color-mix(in srgb,var(--green) 8%, transparent);
+}
+
+/* ============================================================
+   CONTACTO
+   ============================================================ */
+.contact{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.95fr);
+  gap:clamp(2rem,5vw,4rem); align-items:start;
+}
+.contact h2{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(1.9rem,4.4vw,2.9rem); letter-spacing:-.03em;
+  line-height:1.06; margin:0 0 1.15rem; text-wrap:balance;
+}
+.contact p{ color:var(--text-dim); margin:0 0 2rem; max-width:46ch; text-wrap:pretty; }
+
+.contact-list{ display:grid; gap:.1rem; }
+.contact-list a{
+  display:grid; grid-template-columns:26px minmax(0,1fr);
+  gap:.9rem; align-items:center;
+  padding:1rem .2rem; border-top:1px solid var(--line);
+  transition:padding-left 220ms var(--ease-out), color 180ms var(--ease-out);
+}
+.contact-list a:last-child{ border-bottom:1px solid var(--line); }
+.contact-list a:hover{ padding-left:.65rem; color:var(--cyan); }
+.contact-list svg{ width:16px; height:16px; color:var(--text-faint); transition:color 180ms var(--ease-out); }
+.contact-list a:hover svg{ color:var(--cyan); }
+.contact-list .lb{
+  font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);
+  display:block; letter-spacing:.03em;
+}
+.contact-list .vl{ font-size:.97rem; color:var(--text); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--line); padding:2.2rem 0;
+  font-family:var(--font-mono); font-size:.76rem; color:var(--text-faint);
+  display:flex; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;
+}
+.footer a{ color:var(--text-dim); }
+.footer a:hover{ color:var(--cyan); }
+
+/* ============================================================
+   IDIOMA — el texto se cambia con data-en / data-es
+   ============================================================ */
+:root[lang="en"] .lang-es{ display:none; }
+:root[lang="es"] .lang-en{ display:none; }
+
+/* El bloque oculto se marca para que los lectores de pantalla y los
+   buscadores no lean las dos versiones a la vez. */
+:root[lang="en"] .lang-es[aria-hidden]{ display:none; }
+:root[lang="es"] .lang-en[aria-hidden]{ display:none; }
+
+/* El switcher */
+.lang-switch{
+  display:flex; align-items:center; gap:.15rem;
+  border:1px solid var(--line-bright); border-radius:7px;
+  padding:.2rem; background:var(--bg-inset);
+}
+.lang-switch button{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.03em;
+  background:none; border:0; color:var(--text-faint); cursor:pointer;
+  padding:.32rem .58rem; border-radius:5px;
+  transition:color 160ms var(--ease-out), background-color 160ms var(--ease-out),
+             transform 140ms var(--ease-out);
+}
+.lang-switch button:hover{ color:var(--text); }
+.lang-switch button:active{ transform:scale(.94); }
+.lang-switch button[aria-pressed="true"]{
+  background:var(--cyan); color:#03151A; font-weight:600;
+}
+
+/* ============================================================
+   FOCO QUE SIGUE AL CURSOR
+   Un halo de luz en las superficies que se hover, como el
+   barrido de un sensor. Solo en punteros finos.
+   ============================================================ */
+@media (hover:hover) and (pointer:fine){
+  .project, .stack-col{ position:relative; }
+  .project::before, .stack-col::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),
+               color-mix(in srgb, var(--cyan) 8%, transparent), transparent 65%);
+    opacity:0; transition:opacity 260ms var(--ease-out); z-index:0;
+  }
+  .project:hover::before, .stack-col:hover::before{ opacity:1; }
+  .project > *, .stack-col > *{ position:relative; z-index:1; }
+}
+
+/* ============================================================
+   CONTADORES
+   ============================================================ */
+.metric dd .num{
+  font-style:normal; font-variant-numeric:tabular-nums;
+  color:var(--text);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .hero__grid{ grid-template-columns:1fr; gap:2.4rem; }
+  .portrait{ max-width:290px; margin-inline:auto; }
+  .tl{ grid-template-columns:1fr; gap:.8rem; }
+  .tl__when{ display:flex; gap:.7rem; align-items:baseline; flex-wrap:wrap; }
+  .tl__when b{ margin-top:0; }
+  .project{ grid-template-columns:1fr; }
+  .project__links{ min-width:0; grid-auto-flow:column; justify-content:start; }
+  .contact{ grid-template-columns:1fr; }
+}
+@media (max-width:640px){
+  body{ font-size:16px; }
+  .nav__links{ display:none; }
+  .hero__grid{ gap:1.8rem; }
+  .portrait{ max-width:240px; margin-inline:0; }
+  .metrics{ grid-template-columns:1fr; }
+  .metric{ border-right:0; border-bottom:1px solid var(--line); }
+  .metric:last-child{ border-bottom:0; }
+  .stack-grid{ grid-template-columns:1fr; }
+  .project__links{ grid-auto-flow:row; }
+  .console__body{ font-size:.78rem; padding:1.1rem; }
+}
+
+/* Respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+/* ============================================================
+   DETALLES FINOS
+   ============================================================ */
+html{ color-scheme:dark; }
+body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+h1,h2,h3{ text-wrap:balance; }
+p{ text-wrap:pretty; }
+section[id]{ scroll-margin-top:72px; }
+
+/* El cursor de blinking: la consola esta viva */
+@keyframes blink{ 50%{ opacity:0; } }
+.console__body > div > div:last-child span:last-child{ animation:blink 1.1s steps(1) infinite; }
+
+/* El rol actual se marca con un punto de estado */
+.tl:first-child .tl__when::before{
+  content:""; display:inline-block; width:7px; height:7px; border-radius:50%;
+  background:var(--green); margin-right:.55rem; vertical-align:.08em;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 15%, transparent);
+}
+
+/* Las etiquetas de tecnologia responden al puntero */
+.project__tags li{ transition:border-color 180ms var(--ease-out), color 180ms var(--ease-out); }
+.project__tags li:hover{ border-color:var(--cyan); color:var(--cyan); }
+.link svg{ transition:transform 200ms var(--ease-out); }
+.link:hover svg{ transform:translate(1px,-1px); }
+
+/* Barra de progreso: el color recorre el trazo */
+.progress{
+  position:fixed; top:0; left:0; right:0; height:2px; z-index:60;
+  background:linear-gradient(90deg, var(--cyan-deep), var(--cyan));
+  transform:scaleX(0); transform-origin:left; pointer-events:none;
+  will-change:transform;
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="progress" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAV
+     ══════════════════════════════════════════════════════════ -->
+<header class="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="#inicio"><i aria-hidden="true"></i> <b>mtabares</b> · ~/backend</a>
+    <nav aria-label="Secciones">
+      <ul class="nav__links">
+        <li><a href="#perfil"><span class="lang-es">Perfil</span><span class="lang-en">About</span></a></li>
+        <li><a href="#stack"><span class="lang-es">Stack</span><span class="lang-en">Stack</span></a></li>
+        <li><a href="#experiencia"><span class="lang-es">Experiencia</span><span class="lang-en">Experience</span></a></li>
+        <li><a href="#proyectos"><span class="lang-es">Proyectos</span><span class="lang-en">Projects</span></a></li>
+        <li><a href="#contacto"><span class="lang-es">Contacto</span><span class="lang-en">Contact</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="lang-switch" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="es" aria-pressed="true">ES</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="contenido">
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════ -->
+<section class="hero" id="inicio">
+  <div class="wrap">
+    <div class="hero__grid">
+
+      <div>
+        <h1>
+          <span class="ln">Michael Tabares Tobón</span>
+          <span class="ln ln--accent lang-es">Backend y Cloud</span>
+          <span class="ln ln--accent lang-en">Backend &amp; Cloud</span>
+        </h1>
+
+        <p class="hero__lead">
+          <span class="lang-es">Practicante de Ingeniería de Sistemas en La Ceja, Antioquia. Construyo APIs REST en <strong>Java y Python</strong> y las llevo hasta producción: <strong>VPS, Docker, Linux y AWS</strong>. Me interesa la parte donde el código se encuentra con un servidor real.</span>
+          <span class="lang-en">Systems Engineering intern based in La Ceja, Antioquia, Colombia. I build REST APIs in <strong>Java and Python</strong> and ship them to production: <strong>VPS, Docker, Linux and AWS</strong>. I'm drawn to the part where code meets a real server.</span>
+        </p>
+
+        <div class="cta">
+          <a class="btn btn--primary" href="#proyectos">
+            <span class="lang-es">Ver proyectos</span><span class="lang-en">See projects</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </a>
+          <a class="btn" href="/CV_Michael_Tabares_Tobon_v12_backend.pdf" download
+             data-cv-es="/CV_Michael_Tabares_Tobon_v12_backend.pdf"
+             data-cv-en="/CV_Michael_Tabares_Tobon_EN.pdf">
+            <span class="lang-es">Descargar CV</span><span class="lang-en">Download CV</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="portrait">
+        <div class="portrait__frame">
+          <img src="assets/michael.jpg"
+               alt="Retrato de Michael Tabares Tobón"
+               width="1067" height="1067">
+        </div>
+        <div class="portrait__meta">
+          <span>Universidad de Antioquia</span>
+          <span><span class="lang-es">9.º semestre</span><span class="lang-en">9th semester</span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <dl class="metrics">
+      <div class="metric">
+        <dt><span class="lang-es">En producción</span><span class="lang-en">In production</span></dt>
+        <dd>3 <span class="lang-es">sistemas</span><span class="lang-en">systems</span></dd>
+      </div>
+      <div class="metric">
+        <dt><span class="lang-es">Endpoints REST</span><span class="lang-en">REST endpoints</span></dt>
+        <dd>88 <span class="lang-es">modulares</span><span class="lang-en">modular endpoints</span></dd>
+      </div>
+      <div class="metric">
+        <dt><span class="lang-es">Empleados</span><span class="lang-en">Employees</span></dt>
+        <dd>8 <span class="lang-es">en seguimiento</span><span class="lang-en">tracked</span></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PERFIL
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="perfil">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Cómo trabajo</span><span class="lang-en">How I work</span></h2>
+      <p>perfil.md</p>
+    </div>
+
+    <div class="console">
+      <div class="console__bar" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <span>~/perfil — zsh</span>
+      </div>
+      <div class="console__body">
+
+        <div class="lang-es">
+          <div><span class="p">$</span> <span class="c">cat</span> <span class="v">resumen.txt</span></div>
+          <div>&nbsp;</div>
+          <div><span class="k">▸</span> <span class="v">Estudiante de último año de Ingeniería de Sistemas</span></div>
+          <div><span class="k">▸</span> <span class="v">Desarrollo backend con Java (Spring Boot), Python y Node.js</span></div>
+          <div><span class="k">▸</span> <span class="v">Despliegues en VPS y AWS EC2 con Docker y Linux</span></div>
+          <div><span class="k">▸</span> <span class="v">Migraciones versionadas, JWT, PostgreSQL y Nginx</span></div>
+          <div>&nbsp;</div>
+          <div><span class="g">!</span> <span class="c">Administro los servidores que mantengo: TLS, firewall, SSH y monitoreo</span></div>
+          <div><span class="g">!</span> <span class="c">Me responsabilizo de que el servicio no se caiga</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">grep</span> <span class="v">-i "valores" perfil.txt</span></div>
+          <div><span class="k">▸</span> <span class="v">Rigor</span> <span class="c">—</span> <span class="v">verifico lo que reporto</span></div>
+          <div><span class="k">▸</span> <span class="v">Comunicación</span> <span class="c">—</span> <span class="v">explico lo técnico sin jerga</span></div>
+          <div><span class="k">▸</span> <span class="v">Equipo</span> <span class="c">—</span> <span class="v">no dejo bloqueada a la gente</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">_</span></div>
+        </div>
+
+        <div class="lang-en">
+          <div><span class="p">$</span> <span class="c">cat</span> <span class="v">summary.txt</span></div>
+          <div>&nbsp;</div>
+          <div><span class="k">▸</span> <span class="v">Final-year Systems Engineering student</span></div>
+          <div><span class="k">▸</span> <span class="v">Backend development with Java (Spring Boot), Python and Node.js</span></div>
+          <div><span class="k">▸</span> <span class="v">Deployments to VPS and AWS EC2 with Docker and Linux</span></div>
+          <div><span class="k">▸</span> <span class="v">Versioned migrations, JWT, PostgreSQL and Nginx</span></div>
+          <div>&nbsp;</div>
+          <div><span class="g">!</span> <span class="c">I run the servers I maintain: TLS, firewall, SSH and monitoring</span></div>
+          <div><span class="g">!</span> <span class="c">I own it when the service goes down</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">grep</span> <span class="v">-i "values" summary.txt</span></div>
+          <div><span class="k">▸</span> <span class="v">Rigour</span> <span class="c">—</span> <span class="v">I verify what I report</span></div>
+          <div><span class="k">▸</span> <span class="v">Communication</span> <span class="c">—</span> <span class="v">I explain the technical bits without jargon</span></div>
+          <div><span class="k">▸</span> <span class="v">Teamwork</span> <span class="c">—</span> <span class="v">I never leave people blocked</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">_</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     STACK
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="stack">
+  <div class="wrap">
+    <div class="section__head">
+      <h2>Stack</h2>
+      <p>technologies.txt</p>
+    </div>
+
+    <div class="stack-grid">
+      <div class="stack-col">
+        <h3><span class="lang-es">Lenguajes</span><span class="lang-en">Languages</span></h3>
+        <ul>
+          <li><b>Java 17</b> · Spring Boot 3, JPA/Hibernate</li>
+          <li><b>Python 3</b> · FastAPI, Flask, pandas</li>
+          <li><b>JavaScript ES6+</b> · Node.js, React</li>
+          <li><b>SQL</b> · PostgreSQL, MongoDB</li>
+          <li><b>Bash</b> · <span class="lang-es">automatización y scripts</span><span class="lang-en">automation &amp; scripting</span></li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Infraestructura</span><span class="lang-en">Infrastructure</span></h3>
+        <ul>
+          <li><b>Linux</b> · Arch, Debian, Ubuntu, RHEL</li>
+          <li><b>Docker</b> · <span class="lang-es">contenedores y Compose</span><span class="lang-en">containers &amp; Compose</span></li>
+          <li><b>AWS EC2</b> · IAM, VPC, S3, Lambda</li>
+          <li><b>VPS</b> · <span class="lang-es">despliegue con SSH</span><span class="lang-en">deployment over SSH</span></li>
+          <li><b>Nginx</b> · reverse proxy, TLS</li>
+          <li><b>Kubernetes</b> · k3s</li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Seguridad</span><span class="lang-en">Security</span></h3>
+        <ul>
+          <li><b>JWT</b> · <span class="lang-es">tokens firmados con expiración</span><span class="lang-en">signed tokens with expiry</span></li>
+          <li><b>TLS</b> · Let's Encrypt vía cert-manager</li>
+          <li><b>UFW</b> · firewall y fail2ban</li>
+          <li><b><span class="lang-es">Gestión de secretos</span><span class="lang-en">Secret management</span></b> · <span class="lang-es">variables de entorno</span><span class="lang-en">environment variables</span></li>
+          <li><b>OWASP</b> · <span class="lang-es">validación de entradas</span><span class="lang-en">input validation</span></li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Herramientas</span><span class="lang-en">Tools</span></h3>
+        <ul>
+          <li><b>Git</b> · <span class="lang-es">ramas y pull requests</span><span class="lang-en">branches &amp; pull requests</span></li>
+          <li><b>Azure DevOps</b> · Scrum, <span class="lang-es">historias de usuario</span><span class="lang-en">user stories</span></li>
+          <li><b>Postman</b> · <span class="lang-es">pruebas de API</span><span class="lang-en">API testing</span></li>
+          <li><b>Figma</b> · <span class="lang-es">diseño de interfaces</span><span class="lang-en">interface design</span></li>
+          <li><b>JUnit, pytest, Jest</b> · <span class="lang-es">pruebas</span><span class="lang-en">testing</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     EXPERIENCIA
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="experiencia">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Experiencia</span><span class="lang-en">Experience</span></h2>
+      <p>timeline.md</p>
+    </div>
+
+    <div class="timeline">
+      <article class="tl">
+        <div class="tl__when"><span class="lang-es">Actualmente</span><span class="lang-en">Currently</span><b>2026</b></div>
+        <div class="tl__body">
+          <h3>Suite Nexus</h3>
+          <p class="where">Delivery Bakery · suite.nexusbank.uk</p>
+          <ul>
+            <li class="lang-es">Diseñé, implementé y desplegué en producción un sistema de asistencia por <strong>reconocimiento facial</strong> que registra la entrada y salida de 8 empleados y calcula horas ordinarias, extras y festivas.</li>
+            <li class="lang-es">La aplicación se ejecuta en <strong>contenedores Docker</strong> sobre servidores en la nube, organizada en módulos (autenticación, registro facial, cálculo de jornadas y reportes) que se comunican por <code>API REST</code> con <code>JWT</code>.</li>
+            <li class="lang-es">Adopté <strong>Alembic</strong> para versionar el esquema de la base de datos y escribir las 12 migraciones que evitan que el código se desincronice del modelo de datos.</li>
+            <li class="lang-es">Administro los servidores donde corre la aplicación: <strong>certificados TLS, firewall, acceso SSH seguro</strong> y monitoreo del servicio.</li>
+
+            <li class="lang-en">Designed, built and deployed to production a facial-recognition attendance system that logs entry and exit for 8 employees and calculates ordinary, overtime and holiday hours.</li>
+            <li class="lang-en">The application runs in <strong>Docker containers</strong> on cloud servers, organised into modules (authentication, face capture, shift calculation and reports) that talk over a <code>REST API</code> with <code>JWT</code>.</li>
+            <li class="lang-en">Adopted <strong>Alembic</strong> to version the database schema and write the 12 migrations that keep code and data model from drifting apart.</li>
+            <li class="lang-en">I administer the servers it runs on: <strong>TLS certificates, firewall, hardened SSH access</strong> and service monitoring.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b><span class="lang-es">Proyecto de aula</span><span class="lang-en">Class project</span></b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Banco Digital — Proyectos de Fábrica Escuela</span><span class="lang-en">Banco Digital — Factory School Projects</span></h3>
+          <p class="where">Universidad de Antioquia</p>
+          <ul>
+            <li class="lang-es">Diseñé e implementé <strong>88 endpoints REST</strong> en Spring Boot 3 para cuentas, transferencias y autenticación, con validación de datos y manejo centralizado de errores.</li>
+            <li class="lang-es">Modelé el esquema relacional en PostgreSQL con llaves primarias y foráneas, índices y restricciones <code>CHECK/UNIQUE</code> para garantizar la integridad de los movimientos entre cuentas.</li>
+            <li class="lang-es">Como responsable del repositorio organizo el trabajo en ramas separadas que integro mediante pull requests, lo que me permitió resolver conflictos de merge sin afectar el código principal.</li>
+
+            <li class="lang-en">Designed and implemented <strong>88 REST endpoints</strong> in Spring Boot 3 for accounts, transfers and authentication, with data validation and centralised error handling.</li>
+            <li class="lang-en">Modelled the relational schema in PostgreSQL with primary and foreign keys, indexes and <code>CHECK/UNIQUE</code> constraints to guarantee integrity of every movement between accounts.</li>
+            <li class="lang-en">As repository owner I organise work across separate branches and merge through pull requests, which let me resolve merge conflicts without touching the main code.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b>Frontend</b></div>
+        <div class="tl__body">
+          <h3>Bibliosoft</h3>
+          <p class="where">Universidad de Antioquia</p>
+          <ul>
+            <li class="lang-es">Desarrollé las vistas responsivas del módulo de catálogo y préstamos en <strong>React y Tailwind CSS</strong>, a partir de los diseños de Figma y con componentes reutilizables y formularios accesibles.</li>
+            <li class="lang-es">Este proyecto me enseñó a conectar la programación orientada a objetos con las bases de datos SQL mediante un ORM, que es la base de los proyectos que desarrollé después.</li>
+
+            <li class="lang-en">Built the responsive views for the catalogue and lending module in <strong>React and Tailwind CSS</strong>, from Figma designs, with reusable components and accessible forms.</li>
+            <li class="lang-en">This project taught me how object-oriented programming connects to SQL databases through an ORM, which became the foundation for everything I built afterwards.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b>Freelance</b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Desarrollador Web Full-Stack</span><span class="lang-en">Full-Stack Web Developer</span></h3>
+          <p class="where"><span class="lang-es">Proyectos para clientes reales</span><span class="lang-en">Projects for real clients</span></p>
+          <ul>
+            <li class="lang-es">Desarrollé aplicaciones web completas, con despliegues en producción y entregas finales como producto terminado.</li>
+            <li class="lang-es">Trabajé con HTML, CSS y JavaScript, Node.js con Express y React, siguiendo arquitectura MVC y una rama de trabajo por funcionalidad en Git.</li>
+
+            <li class="lang-en">Built complete web applications, deployed to production and delivered as finished products.</li>
+            <li class="lang-en">Worked with HTML, CSS and JavaScript, Node.js with Express and React, following MVC architecture and one Git branch per feature.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">Dic 2018 – Abr 2019<span class="lang-en"> · Dec 2018 – Apr 2019</span><b><span class="lang-es">Soporte</span><span class="lang-en">Support</span></b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Asesor de Soporte Técnico</span><span class="lang-en">Technical Support Advisor</span></h3>
+          <p class="where">Emtelco · <span class="lang-es">BPO de soporte para Tigo-UNE</span><span class="lang-en">BPO support for Tigo-UNE</span></p>
+          <ul>
+            <li class="lang-es">Atendí usuarios de Tigo-UNE diagnosticando y resolviendo problemas de conectividad, equipos y facturación en canales telefónicos y digitales.</li>
+            <li class="lang-es">Escalé los casos complejos al nivel 2 y dejé registro de cada incidente en el CRM corporativo, siguiendo los procedimientos del operador.</li>
+
+            <li class="lang-en">Handled Tigo-UNE users, diagnosing and resolving connectivity, hardware and billing issues over phone and digital channels.</li>
+            <li class="lang-en">Escalated complex cases to level 2 and logged every incident in the corporate CRM, following the operator's procedures.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PORTFOLIO
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="proyectos">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Proyectos</span><span class="lang-en">Projects</span></h2>
+      <p>portfolio.md</p>
+    </div>
+
+    <div class="projects">
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Sistema de asistencia</span><span class="lang-en">Production · Attendance system</span></p>
+          <h3>Suite Nexus</h3>
+          <p class="project__sub">Java · Spring Boot · PostgreSQL · Docker · Nginx</p>
+          <p class="project__desc">
+            <span class="lang-es">Sistema de <strong>asistencia por reconocimiento facial</strong> en producción. Registra la entrada y salida de 8 empleados, calcula horas ordinarias, extras y festivas según la normativa local, y expone sus módulos por API REST con autenticación JWT. Corre en contenedores Docker con certificados TLS, firewall y control de acceso por SSH.</span>
+            <span class="lang-en">A <strong>facial-recognition attendance system</strong> running in production. It logs entry and exit for 8 employees, calculates ordinary, overtime and holiday hours per local regulations, and exposes its modules over a REST API with JWT authentication. It runs in Docker containers with TLS certificates, a firewall and SSH-only access.</span>
+          </p>
+          <ul class="project__tags">
+            <li>Spring Boot</li><li>JWT</li><li>Alembic</li><li>Docker</li>
+            <li>PostgreSQL</li><li>Nginx</li><li>TLS</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://suite.nexusbank.uk" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Plataforma de reservas</span><span class="lang-en">Production · Booking platform</span></p>
+          <h3>Bookly</h3>
+          <p class="project__sub">Java · Spring Boot · PostgreSQL · Flyway · Docker</p>
+          <p class="project__desc">
+            <span class="lang-es">Plataforma de <strong>reservas de servicios</strong> donde el cliente agenda con un profesional en una franja libre. Roles <code>CUSTOMER</code>, <code>PROFESSIONAL</code> y <code>ADMIN</code> con cambio de rol auditado, autenticación multifactor para administradores, bitácora de auditoría inmutable y 44 migraciones de esquema.</span>
+            <span class="lang-en">A <strong>service booking platform</strong> where customers book a professional in an open slot. <code>CUSTOMER</code>, <code>PROFESSIONAL</code> and <code>ADMIN</code> roles with audited role changes, multi-factor authentication for administrators, an immutable audit trail and 44 schema migrations.</span>
+          </p>
+          <ul class="project__tags">
+            <li>Spring Boot</li><li>Flyway</li><li>RBAC</li><li>MFA/TOTP</li>
+            <li>PostgreSQL</li><li>JUnit</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://front-mph1.onrender.com/login" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299/Bookly-frontend" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Plataforma educativa</span><span class="lang-en">Production · Education platform</span></p>
+          <h3>Olimpo Academia</h3>
+          <p class="project__sub">React · Tailwind CSS · Node.js · Express · MongoDB</p>
+          <p class="project__desc">
+            <span class="lang-es">Plataforma académica con <strong>funciones serverless</strong> y despliegue en producción. Interfaz construida con React y Tailwind CSS a partir de diseños de Figma, con backend en Node.js, Express y MongoDB, y comunicación por correo automatizado con plantillas de EmailJS.</span>
+            <span class="lang-en">An academic platform with <strong>serverless functions</strong>, deployed to production. The interface is built with React and Tailwind CSS from Figma designs, backed by Node.js, Express and MongoDB, with automated email through EmailJS templates.</span>
+          </p>
+          <ul class="project__tags">
+            <li>React</li><li>Tailwind</li><li>Node.js</li><li>Express</li>
+            <li>MongoDB</li><li>Serverless</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://olimpoacademia.com" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299/Olimpo-Academia-2.0" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Investigación · Machine learning</span><span class="lang-en">Research · Machine learning</span></p>
+          <h3><span class="lang-es">Clasificador de Minerales</span><span class="lang-en">Mineral Classifier</span></h3>
+          <p class="project__sub">Python · scikit-learn · NumPy · OpenCV · Jupyter</p>
+          <p class="project__desc">
+            <span class="lang-es">Clasificación supervisada de cuatro minerales (cuarzo, pirita, malaquita y hematita) a partir de imágenes, con descriptores de <strong>HOG, color, Gabor, LBP, GLCM y momentos Hu</strong>. Lo combine con una validación cruzada <strong>sin fuga de información</strong> y una reducción de dimensión que comparó selección de variables, PCA y UMAP.</span>
+            <span class="lang-en">Supervised classification of four minerals (quartz, pyrite, malachite and hematite) from images, using <strong>HOG, colour, Gabor, LBP, GLCM and Hu moments</strong> as descriptors. I paired it with a <strong>leakage-free cross-validation</strong> setup and a dimensionality reduction study comparing feature selection, PCA and UMAP.</span>
+          </p>
+          <ul class="project__tags">
+            <li>scikit-learn</li><li>PCA</li><li>UMAP</li><li>OpenCV</li>
+            <li>Jupyter</li><li>IEEE</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link" href="https://github.com/Mista299/clasificador-minerales-pdi-udea-2026-2" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTACTO
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="contacto">
+  <div class="wrap">
+    <div class="contact">
+      <div>
+        <h2>
+          <span class="lang-es">¿Tienes una práctica<br>en backend o cloud?</span>
+          <span class="lang-en">Looking for an intern<br>in backend or cloud?</span>
+        </h2>
+        <p>
+          <span class="lang-es">Escríbeme y con gusto te cuento cómo trabajo, qué he construido y cómo puedo aportar a tu equipo. Respondo en menos de 24 horas.</span>
+          <span class="lang-en">Get in touch and I'll happily walk you through how I work, what I've built and how I can contribute to your team. I reply within 24 hours.</span>
+        </p>
+        <div class="cta">
+          <a class="btn btn--primary" href="mailto:michaelpk1999@gmail.com">
+            <span class="lang-es">Escríbeme un correo</span><span class="lang-en">Email me</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-list">
+        <a href="mailto:michaelpk1999@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          <span><span class="lb"><span class="lang-es">Correo</span><span class="lang-en">Email</span></span><span class="vl">michaelpk1999@gmail.com</span></span>
+        </a>
+        <a href="https://www.linkedin.com/in/michael-tabares-tobon" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+          <span><span class="lb">LinkedIn</span><span class="vl">linkedin.com/in/michael-tabares-tobon</span></span>
+        </a>
+        <a href="https://github.com/Mista299" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+          <span><span class="lb">GitHub</span><span class="vl">github.com/Mista299</span></span>
+        </a>
+        <a href="tel:+573197463082">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+          <span><span class="lb"><span class="lang-es">Teléfono</span><span class="lang-en">Phone</span></span><span class="vl">+57 319 746 3082</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer">
+    <span>© 2026 Michael Tabares Tobón</span>
+  </div>
+</footer>
+
+<script>
+/* Selector de idioma ES/EN.
+   El texto de cada elemento existe en el HTML como .lang-es y .lang-en;
+   este script solo muestra uno u otro y actualiza <html lang>. */
+(function () {
+  var KEY = 'mt-lang';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.lang-switch button');
+
+  var META = {
+    es: { title: 'Michael Tabares Tobón — Backend y Cloud',
+          desc: 'Practicante de Ingeniería de Sistemas. Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.' },
+    en: { title: 'Michael Tabares Tobón — Backend & Cloud',
+          desc: 'Systems Engineering intern. Backend in Java and Python, deployment to VPS and cloud, Docker and Linux.' }
+  };
+
+  function apply(lang) {
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+    // Marca la version oculta para lectores de pantalla y buscadores
+    document.querySelectorAll('.lang-es, .lang-en').forEach(function (el) {
+      var isHidden = el.classList.contains('lang-' + (lang === 'es' ? 'en' : 'es'));
+      el.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
+    });
+    // El boton de CV descarga la version del idioma activo
+    document.querySelectorAll('[data-cv-es]').forEach(function (a) {
+      a.setAttribute('href', a.dataset['cv' + (lang === 'en' ? 'En' : 'Es')]);
+    });
+    var m = META[lang];
+    document.title = m.title;
+    var d = document.querySelector('meta[name="description"]');
+    if (d) d.setAttribute('content', m.desc);
+    var o = document.querySelector('meta[property="og:title"]');
+    if (o) o.setAttribute('content', m.title);
+    var og = document.querySelector('meta[property="og:description"]');
+    if (og) og.setAttribute('content', m.desc);
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.dataset.lang); });
+  });
+
+  // Idioma guardado > preferencia del navegador > español
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  var preferred = (navigator.language || 'es').slice(0, 2).toLowerCase();
+  apply(saved || (preferred === 'en' ? 'en' : 'es'));
+})();
+</script>
+
+<script>
+/* ============================================================
+   Animaciones e interaccion
+   Un solo sistema de entradas al scroll, contadores, barra de
+   progreso y el foco que sigue al cursor. Todo se apaga con
+   "movimiento reducido".
+   ============================================================ */
+(function () {
+  var d = document;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
+
+  /* ---------- 1. Barra de progreso de lectura ---------- */
+  var bar = d.querySelector('.progress');
+  if (bar) {
+    var ticking = false;
+    var onScroll = function () {
+      var h = d.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(scrollY / h, 1) : 0) + ')';
+      ticking = false;
+    };
+    addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    onScroll();
+  }
+
+  /* ---------- 2. Entradas al scroll ----------
+     Retardos no uniformes: el ritmo se siente vivo, no mecanico. */
+  var groups = [
+    '.section__head', '.console', '.stack-grid', '.stack-col',
+    '.timeline .tl', '.projects', '.project',
+    '.contact > div', '.contact-list a'
+  ];
+  var seen = [];
+  groups.forEach(function (sel) {
+    $(sel).forEach(function (el) {
+      if (seen.indexOf(el) !== -1) return;
+      seen.push(el);
+      el.classList.add('reveal');
+    });
+  });
+
+  // Retardo segun la posicion del elemento dentro de su contenedor
+  seen.forEach(function (el) {
+    var sibs = Array.prototype.indexOf.call(el.parentNode.children, el);
+    el.style.setProperty('--d', Math.min(sibs, 5) * 65 + 'ms');
+  });
+
+  if (reduce || !('IntersectionObserver' in window)) {
+    seen.forEach(function (el) { el.classList.add('is-in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+      });
+      // Red de seguridad: lo que no se ha revelado a los 4 s se muestra igual
+      seen.forEach(function (el) {
+        if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < innerHeight * 1.2) {
+          el.classList.add('is-in');
+        }
+      });
+    }, { threshold: 0.01, rootMargin: '0px 0px 12% 0px' });
+    seen.forEach(function (el) { io.observe(el); });
+
+    // Fallback final: nada queda invisible por mucho que falle el observer
+    setTimeout(function () {
+      seen.forEach(function (el) {
+        if (el.getBoundingClientRect().top < innerHeight * 1.5) el.classList.add('is-in');
+      });
+    }, 1600);
+  }
+
+  /* ---------- 3. Contadores de las metricas ---------- */
+  $('.metric dd').forEach(function (dd) {
+    var t = dd.firstChild;
+    if (!t || t.nodeType !== 3) return;
+    var m = t.nodeValue.match(/^\s*(\d+)/);
+    if (!m) return;
+    var n = d.createElement('em');
+    n.className = 'num';
+    n.textContent = reduce ? m[1] : '0';
+    t.nodeValue = t.nodeValue.replace(/^\s*\d+/, '');
+    dd.insertBefore(n, t);
+    dd.setAttribute('data-to', m[1]);
+  });
+
+  // Contadores: arrancan cuando las metricas entran en pantalla
+  function count(dd) {
+    var n = dd.querySelector('.num'), to = +dd.getAttribute('data-to'), t0 = null;
+    (function f(t) {
+      if (!t0) t0 = t;
+      var p = Math.min((t - t0) / 1100, 1);
+      n.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(f);
+    })(performance.now());
+  }
+
+  var metrics = $('.metrics');
+  if (reduce || !('IntersectionObserver' in window)) {
+    metrics.forEach(function (m) {
+      $('dd[data-to]', m).forEach(function (dd) {
+        dd.querySelector('.num').textContent = dd.getAttribute('data-to');
+      });
+    });
+  } else {
+    var mo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        mo.unobserve(e.target);
+        setTimeout(function () { $('dd[data-to]', e.target).forEach(count); }, 350);
+      });
+    }, { threshold: 0.25 });
+    metrics.forEach(function (m) { mo.observe(m); });
+  }
+
+  // Red de seguridad: si el observer no dispara, el numero queda en su valor real
+  setTimeout(function () {
+    $('.metrics dd[data-to]').forEach(function (dd) {
+      var n = dd.querySelector('.num');
+      if (n && n.textContent === '0') n.textContent = dd.getAttribute('data-to');
+    });
+  }, 2600);
+
+  /* ---------- 4. Foco de luz que sigue al cursor ---------- */
+  if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    $('.project, .stack-col').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+  }
+})();
+
+/* ============================================================
+   Barra de navegacion: sombra al hacer scroll + seccion activa
+   ============================================================ */
+(function () {
+  var d = document;
+  var nav = d.querySelector('.nav');
+  if (!nav) return;
+  var links = Array.prototype.slice.call(d.querySelectorAll('.nav__links a'));
+  var sections = links.map(function (a) {
+    return d.querySelector(a.getAttribute('href'));
+  }).filter(Boolean);
+
+  var onScroll = function () {
+    nav.classList.toggle('is-stuck', window.scrollY > 8);
+    // Marca la seccion visible: la que ocupa el tercio superior
+    var y = window.scrollY + window.innerHeight * 0.32;
+    var current = -1;
+    sections.forEach(function (s, i) {
+      if (s.offsetTop <= y) current = i;
+    });
+    links.forEach(function (a, i) {
+      a.classList.toggle('is-active', i === current);
+      if (i === current) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  };
+
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+</body>
+</html>

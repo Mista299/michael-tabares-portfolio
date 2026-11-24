@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Michael Tabares Tobón — Backend &amp; Cloud</title>
+<meta name="description" content="Practicante de Ingeniería de Sistemas. Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.">
+<meta property="og:title" content="Michael Tabares Tobón — Backend &amp; Cloud">
+<meta property="og:description" content="Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.">
+<meta property="og:image" content="assets/michael.jpg">
+<meta property="og:type" content="profile">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070C16'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' fill='%232DD4E8' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:            #070C16;
+  --bg-raised:     #0C1526;
+  --bg-inset:      #0A111E;
+  --line:          #1C2942;
+  --line-bright:   #2A3D5E;
+
+  --text:          #E4EBF5;
+  --text-dim:      #94A6C0;
+  --text-faint:    #5C6F8A;
+
+  --cyan:          #2DD4E8;
+  --cyan-deep:     #0E7C90;
+  --amber:         #F0A830;
+  --green:         #3DD68C;
+
+  --font-display:  "Space Grotesk", system-ui, sans-serif;
+  --font-body:     "Inter", system-ui, sans-serif;
+  --font-mono:     "IBM Plex Mono", ui-monospace, monospace;
+
+  --measure:       68ch;
+  --gutter:        clamp(1.25rem, 4vw, 3.5rem);
+  --maxw:          1180px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.62;
+  overflow-x:hidden;
+  /* retícula técnica muy sutil: da textura sin ruido */
+  background-image:
+    linear-gradient(rgba(45,212,232,.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,212,232,.028) 1px, transparent 1px);
+  background-size:64px 64px;
+}
+
+::selection{ background:var(--cyan); color:var(--bg); }
+
+a{ color:inherit; text-decoration:none; }
+img{ max-width:100%; display:block; }
+
+.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--gutter); }
+
+/* Foco visible: teclado siempre Debe notarse */
+:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:2px;
+}
+
+.skip{
+  position:absolute; left:-9999px; top:0; z-index:100;
+  background:var(--cyan); color:var(--bg); padding:.75rem 1.25rem;
+  font-family:var(--font-mono); font-size:.85rem;
+}
+.skip:focus{ left:.5rem; top:.5rem; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter:blur(14px) saturate(150%);
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom:1px solid var(--line);
+}
+.nav__in{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1.5rem; min-height:62px;
+}
+.brand{
+  font-family:var(--font-mono); font-size:.82rem; letter-spacing:.02em;
+  color:var(--text-dim); display:flex; align-items:center; gap:.6rem;
+}
+.brand b{ color:var(--text); font-weight:600; }
+.brand i{
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 18%, transparent);
+  animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ opacity:1; }
+  50%{ opacity:.35; }
+}
+
+.nav__links{ display:flex; gap:.25rem; list-style:none; margin:0; padding:0; }
+.nav__links a{
+  font-size:.86rem; color:var(--text-dim); padding:.45rem .8rem;
+  border-radius:4px; transition:color .18s, background-color .18s;
+}
+.nav__links a:hover{ color:var(--text); background:var(--bg-raised); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ padding:clamp(2rem,4.5vw,3.5rem) 0 clamp(2.5rem,6vw,4.5rem); }
+
+.hero__grid{
+  display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr);
+  gap:clamp(2rem,5vw,4rem); align-items:center;
+}
+
+.eyebrow{
+  font-family:var(--font-mono); font-size:.78rem; color:var(--cyan);
+  display:flex; align-items:center; gap:.6rem; margin:0 0 1.4rem;
+}
+.eyebrow::before{
+  content:""; width:26px; height:1px; background:var(--cyan); opacity:.6;
+}
+
+.hero h1{
+  font-family:var(--font-display); font-weight:600;
+  font-size:clamp(2.2rem,5.4vw,3.7rem); line-height:1.04;
+  letter-spacing:-.035em; margin:0 0 1.4rem;
+}
+.hero h1 .ln{ display:block; }
+.hero h1 .ln--accent{ color:var(--cyan); }
+
+.hero__lead{
+  font-size:clamp(1.02rem,1.9vw,1.16rem); color:var(--text-dim);
+  max-width:56ch; margin:0 0 2.2rem;
+}
+.hero__lead strong{ color:var(--text); font-weight:500; }
+
+/* Botones: sin flechas, verbos explícitos */
+.cta{ display:flex; flex-wrap:wrap; gap:.85rem; align-items:center; }
+.btn{
+  display:inline-flex; align-items:center; gap:.65rem;
+  font-family:var(--font-mono); font-size:.85rem; letter-spacing:.01em;
+  padding:.82rem 1.4rem; border-radius:5px;
+  border:1px solid var(--line-bright); color:var(--text);
+  background:var(--bg-raised);
+  transition:border-color .18s, background-color .18s, transform .18s, color .18s;
+}
+.btn:hover{ border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px); }
+.btn--primary{
+  background:var(--cyan); color:#04121A; border-color:var(--cyan); font-weight:500;
+}
+.btn--primary:hover{ background:#5AE3F3; color:#04121A; border-color:#5AE3F3; }
+.btn svg{ width:15px; height:15px; flex:none; }
+
+/* Foto con marco técnico */
+.portrait{ position:relative; width:100%; max-width:330px; margin-left:auto; }
+.portrait__frame{
+  position:relative; border:1px solid var(--line-bright);
+  background:var(--bg-inset); padding:10px;
+}
+.portrait__frame::before,
+.portrait__frame::after{
+  content:""; position:absolute; width:16px; height:16px;
+  border:2px solid var(--cyan);
+}
+.portrait__frame::before{ top:-1px; left:-1px; border-right:0; border-bottom:0; }
+.portrait__frame::after{ bottom:-1px; right:-1px; border-left:0; border-top:0; }
+.portrait img{
+  width:100%; height:auto; aspect-ratio:1/1;
+  object-fit:cover; object-position:50% 30%;
+  filter:saturate(.92) contrast(1.02);
+}
+
+.portrait__meta{
+  margin-top:.85rem; font-family:var(--font-mono); font-size:.72rem;
+  color:var(--text-faint); display:flex; justify-content:space-between; gap:1rem;
+}
+
+/* Métricas reales de infraestructura */
+.metrics{
+  display:grid; grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--line); border-radius:6px;
+  margin-top:clamp(2.5rem,5vw,4rem); overflow:hidden;
+  background:var(--bg-inset);
+}
+.metric{ padding:1.25rem 1.4rem; border-right:1px solid var(--line); }
+.metric:last-child{ border-right:0; }
+.metric dt{
+  font-family:var(--font-mono); font-size:.7rem; color:var(--text-faint);
+  letter-spacing:.06em; text-transform:uppercase; margin:0 0 .5rem;
+}
+.metric dd{
+  margin:0; font-family:var(--font-display); font-weight:600;
+  font-size:clamp(1.5rem,3.4vw,2.1rem); line-height:1; letter-spacing:-.02em;
+}
+.metric dd span{ color:var(--cyan); }
+
+/* ============================================================
+   SECCIONES
+   ============================================================ */
+.section{ padding:clamp(3.5rem,8vw,6rem) 0; }
+.section + .section{ border-top:1px solid var(--line); }
+
+.section__head{
+  display:flex; align-items:baseline; gap:1rem; margin-bottom:clamp(2rem,4vw,3rem);
+  flex-wrap:wrap;
+}
+.section__head h2{
+  font-family:var(--font-display); font-weight:600;
+  font-size:clamp(1.6rem,3.6vw,2.3rem); letter-spacing:-.025em; margin:0;
+}
+.section__head p{
+  font-family:var(--font-mono); font-size:.8rem; color:var(--text-faint);
+  margin:0; margin-left:auto;
+}
+
+/* ============================================================
+   STACK — salida de consola
+   ============================================================ */
+.console{
+  border:1px solid var(--line); border-radius:6px; overflow:hidden;
+  background:var(--bg-inset);
+}
+.console__bar{
+  display:flex; align-items:center; gap:.5rem; padding:.6rem .9rem;
+  border-bottom:1px solid var(--line); background:var(--bg-raised);
+}
+.console__bar i{ width:9px; height:9px; border-radius:50%; background:var(--line-bright); }
+.console__bar i:nth-child(1){ background:#E0565B; }
+.console__bar i:nth-child(2){ background:#E0B341; }
+.console__bar i:nth-child(3){ background:#3DD68C; }
+.console__bar span{
+  margin-left:.6rem; font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);
+}
+.console__body{ padding:1.3rem 1.4rem; font-family:var(--font-mono); font-size:.85rem; line-height:1.85; }
+.console__body .p{ color:var(--green); }
+.console__body .k{ color:var(--cyan); }
+.console__body .v{ color:var(--text); }
+.console__body .c{ color:var(--text-faint); }
+.console__body .g{ color:var(--amber); }
+
+.stack-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  gap:1px; background:var(--line); border:1px solid var(--line);
+  border-radius:6px; overflow:hidden; margin-top:1.5rem;
+}
+.stack-col{ background:var(--bg-inset); padding:1.4rem; }
+.stack-col h3{
+  font-family:var(--font-mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--cyan); margin:0 0 1rem;
+}
+.stack-col ul{ list-style:none; margin:0; padding:0; display:grid; gap:.55rem; }
+.stack-col li{ font-size:.92rem; color:var(--text-dim); }
+.stack-col li b{ color:var(--text); font-weight:500; }
+
+/* ============================================================
+   EXPERIENCIA — timeline
+   ============================================================ */
+.timeline{ display:grid; gap:0; }
+.tl{
+  display:grid; grid-template-columns:170px minmax(0,1fr);
+  gap:clamp(1.5rem,4vw,3rem);
+  padding:2.2rem 0; border-top:1px solid var(--line);
+}
+.tl:first-child{ border-top:0; padding-top:0; }
+.tl__when{ font-family:var(--font-mono); font-size:.8rem; color:var(--text-faint); }
+.tl__when b{ display:block; color:var(--text-dim); font-weight:500; margin-top:.3rem; }
+.tl__body h3{
+  font-family:var(--font-display); font-weight:600; font-size:1.32rem;
+  letter-spacing:-.015em; margin:0 0 .25rem;
+}
+.tl__body .where{
+  font-family:var(--font-mono); font-size:.8rem; color:var(--cyan);
+  margin:0 0 1.1rem;
+}
+.tl__body ul{ margin:0; padding:0; list-style:none; display:grid; gap:.7rem; }
+.tl__body li{
+  position:relative; padding-left:1.3rem; color:var(--text-dim); font-size:.97rem;
+}
+.tl__body li::before{
+  content:""; position:absolute; left:0; top:.62em;
+  width:5px; height:5px; background:var(--cyan); border-radius:1px;
+}
+.tl__body li strong{ color:var(--text); font-weight:500; }
+.tl__body li code{
+  font-family:var(--font-mono); font-size:.87em; color:var(--cyan);
+  background:color-mix(in srgb, var(--cyan) 9%, transparent);
+  padding:.1em .38em; border-radius:3px;
+}
+
+/* ============================================================
+   PORTFOLIO
+   ============================================================ */
+.projects{ display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+
+.project{
+  background:var(--bg-inset); padding:clamp(1.6rem,3vw,2.3rem);
+  display:grid; grid-template-columns:minmax(0,1fr) auto;
+  gap:1.5rem 2rem; align-items:start;
+  transition:background-color .2s;
+}
+.project:hover{ background:var(--bg-raised); }
+
+.project__tag{
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--amber); margin:0 0 .7rem;
+}
+.project h3{
+  font-family:var(--font-display); font-weight:600; font-size:1.4rem;
+  letter-spacing:-.02em; margin:0 0 .1rem;
+}
+.project__sub{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-faint); margin:0 0 1.1rem; }
+.project__desc{ color:var(--text-dim); margin:0 0 1.2rem; max-width:62ch; }
+.project__desc strong{ color:var(--text); font-weight:500; }
+
+.project__tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin:0; padding:0; list-style:none; }
+.project__tags li{
+  font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim);
+  border:1px solid var(--line-bright); border-radius:3px; padding:.22rem .55rem;
+}
+
+.project__links{ display:grid; gap:.55rem; min-width:180px; }
+.link{
+  display:flex; align-items:center; gap:.55rem;
+  font-family:var(--font-mono); font-size:.82rem;
+  padding:.6rem .85rem; border:1px solid var(--line-bright); border-radius:4px;
+  color:var(--text-dim); transition:all .18s; white-space:nowrap;
+}
+.link:hover{ border-color:var(--cyan); color:var(--cyan); background:color-mix(in srgb,var(--cyan) 7%, transparent); }
+.link svg{ width:14px; height:14px; flex:none; }
+.link--live{ border-color:color-mix(in srgb,var(--green) 40%, var(--line-bright)); color:var(--green); }
+.link--live:hover{ border-color:var(--green); color:var(--green); background:color-mix(in srgb,var(--green) 8%, transparent); }
+
+/* ============================================================
+   CONTACTO
+   ============================================================ */
+.contact{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.95fr);
+  gap:clamp(2rem,5vw,4rem); align-items:start;
+}
+.contact h2{
+  font-family:var(--font-display); font-weight:600;
+  font-size:clamp(1.9rem,4.4vw,2.9rem); letter-spacing:-.03em;
+  line-height:1.08; margin:0 0 1.1rem;
+}
+.contact p{ color:var(--text-dim); margin:0 0 2rem; max-width:46ch; }
+
+.contact-list{ display:grid; gap:.1rem; }
+.contact-list a{
+  display:grid; grid-template-columns:26px minmax(0,1fr);
+  gap:.9rem; align-items:center;
+  padding:1rem .2rem; border-top:1px solid var(--line);
+  transition:padding-left .18s, color .18s;
+}
+.contact-list a:last-child{ border-bottom:1px solid var(--line); }
+.contact-list a:hover{ padding-left:.65rem; color:var(--cyan); }
+.contact-list svg{ width:16px; height:16px; color:var(--text-faint); }
+.contact-list a:hover svg{ color:var(--cyan); }
+.contact-list .lb{
+  font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);
+  display:block; letter-spacing:.04em;
+}
+.contact-list .vl{ font-size:.97rem; color:var(--text); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--line); padding:2.2rem 0;
+  font-family:var(--font-mono); font-size:.76rem; color:var(--text-faint);
+  display:flex; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;
+}
+.footer a{ color:var(--text-dim); }
+.footer a:hover{ color:var(--cyan); }
+
+/* ============================================================
+   IDIOMA — el texto se cambia con data-en / data-es
+   ============================================================ */
+:root[lang="en"] .lang-es{ display:none; }
+:root[lang="es"] .lang-en{ display:none; }
+
+/* El bloque oculto se marca para que los lectores de pantalla y los
+   buscadores no lean las dos versiones a la vez. */
+:root[lang="en"] .lang-es[aria-hidden]{ display:none; }
+:root[lang="es"] .lang-en[aria-hidden]{ display:none; }
+
+/* El switcher */
+.lang-switch{
+  display:flex; align-items:center; gap:.3rem;
+  border:1px solid var(--line-bright); border-radius:4px;
+  padding:.2rem; background:var(--bg-inset);
+}
+.lang-switch button{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.04em;
+  background:none; border:0; color:var(--text-faint); cursor:pointer;
+  padding:.3rem .55rem; border-radius:3px; transition:all .16s;
+}
+.lang-switch button:hover{ color:var(--text); }
+.lang-switch button[aria-pressed="true"]{
+  background:var(--cyan); color:#04121A; font-weight:500;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .hero__grid{ grid-template-columns:1fr; gap:2.2rem; }
+  .portrait{ max-width:280px; margin-inline:auto; }
+  .tl{ grid-template-columns:1fr; gap:.75rem; }
+  .tl__when{ display:flex; gap:.7rem; align-items:baseline; }
+  .tl__when b{ margin-top:0; }
+  .project{ grid-template-columns:1fr; }
+  .project__links{ min-width:0; }
+  .contact{ grid-template-columns:1fr; }
+}
+@media (max-width:640px){
+  body{ font-size:16px; }
+  .nav__links{ display:none; }
+  .hero__grid{ gap:1.8rem; }
+  .portrait{ max-width:230px; margin-inline:0; }
+  .metrics{ grid-template-columns:1fr; }
+  .metric{ border-right:0; border-bottom:1px solid var(--line); }
+  .metric:last-child{ border-bottom:0; }
+  .stack-grid{ grid-template-columns:1fr; }
+}
+
+/* Respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAV
+     ══════════════════════════════════════════════════════════ -->
+<header class="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="#inicio"><i aria-hidden="true"></i> <b>mtabares</b> · ~/backend</a>
+    <nav aria-label="Secciones">
+      <ul class="nav__links">
+        <li><a href="#perfil"><span class="lang-es">Perfil</span><span class="lang-en">About</span></a></li>
+        <li><a href="#stack"><span class="lang-es">Stack</span><span class="lang-en">Stack</span></a></li>
+        <li><a href="#experiencia"><span class="lang-es">Experiencia</span><span class="lang-en">Experience</span></a></li>
+        <li><a href="#proyectos"><span class="lang-es">Proyectos</span><span class="lang-en">Projects</span></a></li>
+        <li><a href="#contacto"><span class="lang-es">Contacto</span><span class="lang-en">Contact</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="lang-switch" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="es" aria-pressed="true">ES</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="contenido">
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════ -->
+<section class="hero" id="inicio">
+  <div class="wrap">
+    <div class="hero__grid">
+
+      <div>
+        <p class="eyebrow">
+          <span class="lang-es">La Ceja, Antioquia · Disponible para prácticas 2027-1</span>
+          <span class="lang-en">La Ceja, Antioquia, Colombia · Open to internships 2027-1</span>
+        </p>
+
+        <h1>
+          <span class="ln">Michael Tabares Tobón</span>
+          <span class="ln ln--accent lang-es">Backend y Cloud</span>
+          <span class="ln ln--accent lang-en">Backend &amp; Cloud</span>
+        </h1>
+
+        <p class="hero__lead">
+          <span class="lang-es">Practicante de Ingeniería de Sistemas. Construyo APIs REST en <strong>Java y Python</strong> y las llevo hasta producción: <strong>VPS, Docker, Linux y AWS</strong>. Me interesa la parte donde el código se encuentra con un servidor real.</span>
+          <span class="lang-en">Systems Engineering intern. I build REST APIs in <strong>Java and Python</strong> and ship them to production: <strong>VPS, Docker, Linux and AWS</strong>. I'm drawn to the part where code meets a real server.</span>
+        </p>
+
+        <div class="cta">
+          <a class="btn btn--primary" href="#proyectos">
+            <span class="lang-es">Ver proyectos</span><span class="lang-en">See projects</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </a>
+          <a class="btn" href="/CV_Michael_Tabares_Tobon_v12_backend.pdf" download
+             data-cv-es="/CV_Michael_Tabares_Tobon_v12_backend.pdf"
+             data-cv-en="/CV_Michael_Tabares_Tobon_EN.pdf">
+            <span class="lang-es">Descargar CV</span><span class="lang-en">Download CV</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="portrait">
+        <div class="portrait__frame">
+          <img src="assets/michael.jpg"
+               alt="Retrato de Michael Tabares Tobón"
+               width="1067" height="1067">
+        </div>
+        <div class="portrait__meta">
+          <span>Universidad de Antioquia</span>
+          <span><span class="lang-es">9.º semestre</span><span class="lang-en">9th semester</span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <dl class="metrics">
+      <div class="metric">
+        <dt><span class="lang-es">En producción</span><span class="lang-en">In production</span></dt>
+        <dd>3 <span class="lang-es">sistemas</span><span class="lang-en">systems</span></dd>
+      </div>
+      <div class="metric">
+        <dt><span class="lang-es">Endpoints REST</span><span class="lang-en">REST endpoints</span></dt>
+        <dd>88 <span class="lang-es">modulares</span><span class="lang-en">modular endpoints</span></dd>
+      </div>
+      <div class="metric">
+        <dt><span class="lang-es">Empleados</span><span class="lang-en">Employees</span></dt>
+        <dd>8 <span class="lang-es">en seguimiento</span><span class="lang-en">tracked</span></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PERFIL
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="perfil">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Cómo trabajo</span><span class="lang-en">How I work</span></h2>
+      <p>perfil.md</p>
+    </div>
+
+    <div class="console">
+      <div class="console__bar" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <span>~/perfil — zsh</span>
+      </div>
+      <div class="console__body">
+
+        <div class="lang-es">
+          <div><span class="p">$</span> <span class="c">cat</span> <span class="v">resumen.txt</span></div>
+          <div>&nbsp;</div>
+          <div><span class="k">▸</span> <span class="v">Estudiante de último año de Ingeniería de Sistemas</span></div>
+          <div><span class="k">▸</span> <span class="v">Desarrollo backend con Java (Spring Boot), Python y Node.js</span></div>
+          <div><span class="k">▸</span> <span class="v">Despliegues en VPS y AWS EC2 con Docker y Linux</span></div>
+          <div><span class="k">▸</span> <span class="v">Migraciones versionadas, JWT, PostgreSQL y Nginx</span></div>
+          <div>&nbsp;</div>
+          <div><span class="g">!</span> <span class="c">Administro los servidores que mantengo: TLS, firewall, SSH y monitoreo</span></div>
+          <div><span class="g">!</span> <span class="c">Me responsabilizo de que el servicio no se caiga</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">grep</span> <span class="v">-i "valores" perfil.txt</span></div>
+          <div><span class="k">▸</span> <span class="v">Rigor</span> <span class="c">—</span> <span class="v">verifico lo que reporto</span></div>
+          <div><span class="k">▸</span> <span class="v">Comunicación</span> <span class="c">—</span> <span class="v">explico lo técnico sin jerga</span></div>
+          <div><span class="k">▸</span> <span class="v">Equipo</span> <span class="c">—</span> <span class="v">no dejo bloqueada a la gente</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">_</span></div>
+        </div>
+
+        <div class="lang-en">
+          <div><span class="p">$</span> <span class="c">cat</span> <span class="v">summary.txt</span></div>
+          <div>&nbsp;</div>
+          <div><span class="k">▸</span> <span class="v">Final-year Systems Engineering student</span></div>
+          <div><span class="k">▸</span> <span class="v">Backend development with Java (Spring Boot), Python and Node.js</span></div>
+          <div><span class="k">▸</span> <span class="v">Deployments to VPS and AWS EC2 with Docker and Linux</span></div>
+          <div><span class="k">▸</span> <span class="v">Versioned migrations, JWT, PostgreSQL and Nginx</span></div>
+          <div>&nbsp;</div>
+          <div><span class="g">!</span> <span class="c">I run the servers I maintain: TLS, firewall, SSH and monitoring</span></div>
+          <div><span class="g">!</span> <span class="c">I own it when the service goes down</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">grep</span> <span class="v">-i "values" summary.txt</span></div>
+          <div><span class="k">▸</span> <span class="v">Rigour</span> <span class="c">—</span> <span class="v">I verify what I report</span></div>
+          <div><span class="k">▸</span> <span class="v">Communication</span> <span class="c">—</span> <span class="v">I explain the technical bits without jargon</span></div>
+          <div><span class="k">▸</span> <span class="v">Teamwork</span> <span class="c">—</span> <span class="v">I never leave people blocked</span></div>
+          <div>&nbsp;</div>
+          <div><span class="p">$</span> <span class="c">_</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     STACK
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="stack">
+  <div class="wrap">
+    <div class="section__head">
+      <h2>Stack</h2>
+      <p>technologies.txt</p>
+    </div>
+
+    <div class="stack-grid">
+      <div class="stack-col">
+        <h3><span class="lang-es">Lenguajes</span><span class="lang-en">Languages</span></h3>
+        <ul>
+          <li><b>Java 17</b> · Spring Boot 3, JPA/Hibernate</li>
+          <li><b>Python 3</b> · FastAPI, Flask, pandas</li>
+          <li><b>JavaScript ES6+</b> · Node.js, React</li>
+          <li><b>SQL</b> · PostgreSQL, MongoDB</li>
+          <li><b>Bash</b> · <span class="lang-es">automatización y scripts</span><span class="lang-en">automation &amp; scripting</span></li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Infraestructura</span><span class="lang-en">Infrastructure</span></h3>
+        <ul>
+          <li><b>Linux</b> · Arch, Debian, Ubuntu, RHEL</li>
+          <li><b>Docker</b> · <span class="lang-es">contenedores y Compose</span><span class="lang-en">containers &amp; Compose</span></li>
+          <li><b>AWS EC2</b> · IAM, VPC, S3, Lambda</li>
+          <li><b>VPS</b> · <span class="lang-es">despliegue con SSH</span><span class="lang-en">deployment over SSH</span></li>
+          <li><b>Nginx</b> · reverse proxy, TLS</li>
+          <li><b>Kubernetes</b> · k3s</li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Seguridad</span><span class="lang-en">Security</span></h3>
+        <ul>
+          <li><b>JWT</b> · <span class="lang-es">tokens firmados con expiración</span><span class="lang-en">signed tokens with expiry</span></li>
+          <li><b>TLS</b> · Let's Encrypt vía cert-manager</li>
+          <li><b>UFW</b> · firewall y fail2ban</li>
+          <li><b><span class="lang-es">Gestión de secretos</span><span class="lang-en">Secret management</span></b> · <span class="lang-es">variables de entorno</span><span class="lang-en">environment variables</span></li>
+          <li><b>OWASP</b> · <span class="lang-es">validación de entradas</span><span class="lang-en">input validation</span></li>
+        </ul>
+      </div>
+      <div class="stack-col">
+        <h3><span class="lang-es">Herramientas</span><span class="lang-en">Tools</span></h3>
+        <ul>
+          <li><b>Git</b> · <span class="lang-es">ramas y pull requests</span><span class="lang-en">branches &amp; pull requests</span></li>
+          <li><b>Azure DevOps</b> · Scrum, <span class="lang-es">historias de usuario</span><span class="lang-en">user stories</span></li>
+          <li><b>Postman</b> · <span class="lang-es">pruebas de API</span><span class="lang-en">API testing</span></li>
+          <li><b>Figma</b> · <span class="lang-es">diseño de interfaces</span><span class="lang-en">interface design</span></li>
+          <li><b>JUnit, pytest, Jest</b> · <span class="lang-es">pruebas</span><span class="lang-en">testing</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     EXPERIENCIA
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="experiencia">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Experiencia</span><span class="lang-en">Experience</span></h2>
+      <p>timeline.md</p>
+    </div>
+
+    <div class="timeline">
+      <article class="tl">
+        <div class="tl__when"><span class="lang-es">Actualmente</span><span class="lang-en">Currently</span><b>2026</b></div>
+        <div class="tl__body">
+          <h3>Suite Nexus</h3>
+          <p class="where">Delivery Bakery · suite.nexusbank.uk</p>
+          <ul>
+            <li class="lang-es">Diseñé, implementé y desplegué en producción un sistema de asistencia por <strong>reconocimiento facial</strong> que registra la entrada y salida de 8 empleados y calcula horas ordinarias, extras y festivas.</li>
+            <li class="lang-es">La aplicación se ejecuta en <strong>contenedores Docker</strong> sobre servidores en la nube, organizada en módulos (autenticación, registro facial, cálculo de jornadas y reportes) que se comunican por <code>API REST</code> con <code>JWT</code>.</li>
+            <li class="lang-es">Adopté <strong>Alembic</strong> para versionar el esquema de la base de datos y escribir las 12 migraciones que evitan que el código se desincronice del modelo de datos.</li>
+            <li class="lang-es">Administro los servidores donde corre la aplicación: <strong>certificados TLS, firewall, acceso SSH seguro</strong> y monitoreo del servicio.</li>
+
+            <li class="lang-en">Designed, built and deployed to production a facial-recognition attendance system that logs entry and exit for 8 employees and calculates ordinary, overtime and holiday hours.</li>
+            <li class="lang-en">The application runs in <strong>Docker containers</strong> on cloud servers, organised into modules (authentication, face capture, shift calculation and reports) that talk over a <code>REST API</code> with <code>JWT</code>.</li>
+            <li class="lang-en">Adopted <strong>Alembic</strong> to version the database schema and write the 12 migrations that keep code and data model from drifting apart.</li>
+            <li class="lang-en">I administer the servers it runs on: <strong>TLS certificates, firewall, hardened SSH access</strong> and service monitoring.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b><span class="lang-es">Proyecto de aula</span><span class="lang-en">Class project</span></b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Banco Digital — Proyectos de Fábrica Escuela</span><span class="lang-en">Banco Digital — Factory School Projects</span></h3>
+          <p class="where">Universidad de Antioquia</p>
+          <ul>
+            <li class="lang-es">Diseñé e implementé <strong>88 endpoints REST</strong> en Spring Boot 3 para cuentas, transferencias y autenticación, con validación de datos y manejo centralizado de errores.</li>
+            <li class="lang-es">Modelé el esquema relacional en PostgreSQL con llaves primarias y foráneas, índices y restricciones <code>CHECK/UNIQUE</code> para garantizar la integridad de los movimientos entre cuentas.</li>
+            <li class="lang-es">Como responsable del repositorio organizo el trabajo en ramas separadas que integro mediante pull requests, lo que me permitió resolver conflictos de merge sin afectar el código principal.</li>
+
+            <li class="lang-en">Designed and implemented <strong>88 REST endpoints</strong> in Spring Boot 3 for accounts, transfers and authentication, with data validation and centralised error handling.</li>
+            <li class="lang-en">Modelled the relational schema in PostgreSQL with primary and foreign keys, indexes and <code>CHECK/UNIQUE</code> constraints to guarantee integrity of every movement between accounts.</li>
+            <li class="lang-en">As repository owner I organise work across separate branches and merge through pull requests, which let me resolve merge conflicts without touching the main code.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b>Frontend</b></div>
+        <div class="tl__body">
+          <h3>Bibliosoft</h3>
+          <p class="where">Universidad de Antioquia</p>
+          <ul>
+            <li class="lang-es">Desarrollé las vistas responsivas del módulo de catálogo y préstamos en <strong>React y Tailwind CSS</strong>, a partir de los diseños de Figma y con componentes reutilizables y formularios accesibles.</li>
+            <li class="lang-es">Este proyecto me enseñó a conectar la programación orientada a objetos con las bases de datos SQL mediante un ORM, que es la base de los proyectos que desarrollé después.</li>
+
+            <li class="lang-en">Built the responsive views for the catalogue and lending module in <strong>React and Tailwind CSS</strong>, from Figma designs, with reusable components and accessible forms.</li>
+            <li class="lang-en">This project taught me how object-oriented programming connects to SQL databases through an ORM, which became the foundation for everything I built afterwards.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">2024 – 2025<b>Freelance</b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Desarrollador Web Full-Stack</span><span class="lang-en">Full-Stack Web Developer</span></h3>
+          <p class="where"><span class="lang-es">Proyectos para clientes reales</span><span class="lang-en">Projects for real clients</span></p>
+          <ul>
+            <li class="lang-es">Desarrollé aplicaciones web completas, con despliegues en producción y entregas finales como producto terminado.</li>
+            <li class="lang-es">Trabajé con HTML, CSS y JavaScript, Node.js con Express y React, siguiendo arquitectura MVC y una rama de trabajo por funcionalidad en Git.</li>
+
+            <li class="lang-en">Built complete web applications, deployed to production and delivered as finished products.</li>
+            <li class="lang-en">Worked with HTML, CSS and JavaScript, Node.js with Express and React, following MVC architecture and one Git branch per feature.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tl">
+        <div class="tl__when">Dic 2018 – Abr 2019<span class="lang-en"> · Dec 2018 – Apr 2019</span><b><span class="lang-es">Soporte</span><span class="lang-en">Support</span></b></div>
+        <div class="tl__body">
+          <h3><span class="lang-es">Asesor de Soporte Técnico</span><span class="lang-en">Technical Support Advisor</span></h3>
+          <p class="where">Emtelco · <span class="lang-es">BPO de soporte para Tigo-UNE</span><span class="lang-en">BPO support for Tigo-UNE</span></p>
+          <ul>
+            <li class="lang-es">Atendí usuarios de Tigo-UNE diagnosticando y resolviendo problemas de conectividad, equipos y facturación en canales telefónicos y digitales.</li>
+            <li class="lang-es">Escalé los casos complejos al nivel 2 y dejé registro de cada incidente en el CRM corporativo, siguiendo los procedimientos del operador.</li>
+
+            <li class="lang-en">Handled Tigo-UNE users, diagnosing and resolving connectivity, hardware and billing issues over phone and digital channels.</li>
+            <li class="lang-en">Escalated complex cases to level 2 and logged every incident in the corporate CRM, following the operator's procedures.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PORTFOLIO
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="proyectos">
+  <div class="wrap">
+    <div class="section__head">
+      <h2><span class="lang-es">Proyectos</span><span class="lang-en">Projects</span></h2>
+      <p>portfolio.md</p>
+    </div>
+
+    <div class="projects">
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Sistema de asistencia</span><span class="lang-en">Production · Attendance system</span></p>
+          <h3>Suite Nexus</h3>
+          <p class="project__sub">Java · Spring Boot · PostgreSQL · Docker · Nginx</p>
+          <p class="project__desc">
+            <span class="lang-es">Sistema de <strong>asistencia por reconocimiento facial</strong> en producción. Registra la entrada y salida de 8 empleados, calcula horas ordinarias, extras y festivas según la normativa local, y expone sus módulos por API REST con autenticación JWT. Corre en contenedores Docker con certificados TLS, firewall y control de acceso por SSH.</span>
+            <span class="lang-en">A <strong>facial-recognition attendance system</strong> running in production. It logs entry and exit for 8 employees, calculates ordinary, overtime and holiday hours per local regulations, and exposes its modules over a REST API with JWT authentication. It runs in Docker containers with TLS certificates, a firewall and SSH-only access.</span>
+          </p>
+          <ul class="project__tags">
+            <li>Spring Boot</li><li>JWT</li><li>Alembic</li><li>Docker</li>
+            <li>PostgreSQL</li><li>Nginx</li><li>TLS</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://suite.nexusbank.uk" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Plataforma de reservas</span><span class="lang-en">Production · Booking platform</span></p>
+          <h3>Bookly</h3>
+          <p class="project__sub">Java · Spring Boot · PostgreSQL · Flyway · Docker</p>
+          <p class="project__desc">
+            <span class="lang-es">Plataforma de <strong>reservas de servicios</strong> donde el cliente agenda con un profesional en una franja libre. Roles <code>CUSTOMER</code>, <code>PROFESSIONAL</code> y <code>ADMIN</code> con cambio de rol auditado, autenticación multifactor para administradores, bitácora de auditoría inmutable y 44 migraciones de esquema.</span>
+            <span class="lang-en">A <strong>service booking platform</strong> where customers book a professional in an open slot. <code>CUSTOMER</code>, <code>PROFESSIONAL</code> and <code>ADMIN</code> roles with audited role changes, multi-factor authentication for administrators, an immutable audit trail and 44 schema migrations.</span>
+          </p>
+          <ul class="project__tags">
+            <li>Spring Boot</li><li>Flyway</li><li>RBAC</li><li>MFA/TOTP</li>
+            <li>PostgreSQL</li><li>JUnit</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://front-mph1.onrender.com/login" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="project">
+        <div>
+          <p class="project__tag"><span class="lang-es">Producción · Plataforma educativa</span><span class="lang-en">Production · Education platform</span></p>
+          <h3>Olimpo Academia</h3>
+          <p class="project__sub">React · Tailwind CSS · Node.js · Express · MongoDB</p>
+          <p class="project__desc">
+            <span class="lang-es">Plataforma académica con <strong>funciones serverless</strong> y despliegue en producción. Interfaz construida con React y Tailwind CSS a partir de diseños de Figma, con backend en Node.js, Express y MongoDB, y comunicación por correo automatizado con plantillas de EmailJS.</span>
+            <span class="lang-en">An academic platform with <strong>serverless functions</strong>, deployed to production. The interface is built with React and Tailwind CSS from Figma designs, backed by Node.js, Express and MongoDB, with automated email through EmailJS templates.</span>
+          </p>
+          <ul class="project__tags">
+            <li>React</li><li>Tailwind</li><li>Node.js</li><li>Express</li>
+            <li>MongoDB</li><li>Serverless</li>
+          </ul>
+        </div>
+        <div class="project__links">
+          <a class="link link--live" href="https://olimpoacademia.com" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+            <span class="lang-es">Ver en vivo</span><span class="lang-en">Live site</span>
+          </a>
+          <a class="link" href="https://github.com/Mista299/serverless-f" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+            <span class="lang-es">Código</span><span class="lang-en">Code</span>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTACTO
+     ══════════════════════════════════════════════════════════ -->
+<section class="section" id="contacto">
+  <div class="wrap">
+    <div class="contact">
+      <div>
+        <h2>
+          <span class="lang-es">¿Tienes una práctica<br>en backend o cloud?</span>
+          <span class="lang-en">Looking for an intern<br>in backend or cloud?</span>
+        </h2>
+        <p>
+          <span class="lang-es">Escríbeme y con gusto te cuento cómo trabajo, qué he construido y cómo puedo aportar a tu equipo. Respondo en menos de 24 horas.</span>
+          <span class="lang-en">Get in touch and I'll happily walk you through how I work, what I've built and how I can contribute to your team. I reply within 24 hours.</span>
+        </p>
+        <div class="cta">
+          <a class="btn btn--primary" href="mailto:michaelpk1999@gmail.com">
+            <span class="lang-es">Escríbeme un correo</span><span class="lang-en">Email me</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-list">
+        <a href="mailto:michaelpk1999@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          <span><span class="lb"><span class="lang-es">Correo</span><span class="lang-en">Email</span></span><span class="vl">michaelpk1999@gmail.com</span></span>
+        </a>
+        <a href="https://www.linkedin.com/in/michael-tabares-tobon" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+          <span><span class="lb">LinkedIn</span><span class="vl">linkedin.com/in/michael-tabares-tobon</span></span>
+        </a>
+        <a href="https://github.com/Mista299" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+          <span><span class="lb">GitHub</span><span class="vl">github.com/Mista299</span></span>
+        </a>
+        <a href="tel:+573197463082">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+          <span><span class="lb"><span class="lang-es">Teléfono</span><span class="lang-en">Phone</span></span><span class="vl">+57 319 746 3082</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer">
+    <span>© 2026 Michael Tabares Tobón</span>
+  </div>
+</footer>
+
+<script>
+/* Selector de idioma ES/EN.
+   El texto de cada elemento existe en el HTML como .lang-es y .lang-en;
+   este script solo muestra uno u otro y actualiza <html lang>. */
+(function () {
+  var KEY = 'mt-lang';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.lang-switch button');
+
+  var META = {
+    es: { title: 'Michael Tabares Tobón — Backend y Cloud',
+          desc: 'Practicante de Ingeniería de Sistemas. Backend en Java y Python, despliegue en VPS y cloud, Docker y Linux.' },
+    en: { title: 'Michael Tabares Tobón — Backend & Cloud',
+          desc: 'Systems Engineering intern. Backend in Java and Python, deployment to VPS and cloud, Docker and Linux.' }
+  };
+
+  function apply(lang) {
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+    // Marca la version oculta para lectores de pantalla y buscadores
+    document.querySelectorAll('.lang-es, .lang-en').forEach(function (el) {
+      var isHidden = el.classList.contains('lang-' + (lang === 'es' ? 'en' : 'es'));
+      el.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
+    });
+    // El boton de CV descarga la version del idioma activo
+    document.querySelectorAll('[data-cv-es]').forEach(function (a) {
+      a.setAttribute('href', a.dataset['cv' + (lang === 'en' ? 'En' : 'Es')]);
+    });
+    var m = META[lang];
+    document.title = m.title;
+    var d = document.querySelector('meta[name="description"]');
+    if (d) d.setAttribute('content', m.desc);
+    var o = document.querySelector('meta[property="og:title"]');
+    if (o) o.setAttribute('content', m.title);
+    var og = document.querySelector('meta[property="og:description"]');
+    if (og) og.setAttribute('content', m.desc);
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.dataset.lang); });
+  });
+
+  // Idioma guardado > preferencia del navegador > español
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  var preferred = (navigator.language || 'es').slice(0, 2).toLowerCase();
+  apply(saved || (preferred === 'en' ? 'en' : 'es'));
+})();
+</script>
+</body>
+</html>
